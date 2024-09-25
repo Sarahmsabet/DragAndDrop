@@ -18,6 +18,10 @@ import {
   FormLabel,
   FormHelperText,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { AddBox, PublishOutlined } from "@mui/icons-material";
@@ -27,16 +31,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
 import PublishIcon from "@mui/icons-material/Publish";
 
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 function Addfile() {
   const [open, setOpen] = useState(false);
   const [dragFile, setDragFile] = useState(false);
   const inputRef = useRef(null);
   const [file, setFile] = useState([]);
+  const [index, setIndex] = useState(null);
+  const [textFieldValue, setTextFieldValue] = useState("");
   const handelChange = (e) => {
     e.preventDefault();
     console.log("file add");
@@ -83,14 +84,21 @@ function Addfile() {
     inputRef.current.value = "";
     inputRef.current.click();
   };
-  const handleClickOpen = () => {
+  const handleClickOpen = (i) => {
     setOpen(true);
+    setIndex(i);
   };
 
   const handleClose = () => {
     setOpen(false);
   };
-  const editName = () => {};
+  const editName = () => {
+    let getFile = [...file];
+    let getFileIndex = { ...file[index] };
+    getFileIndex.name = textFieldValue;
+    getFile.splice(index, 1, getFileIndex);
+    setFile(getFile);
+  };
   const preview = () => {};
   return (
     <>
@@ -103,8 +111,7 @@ function Addfile() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            const email = formJson.email;
-            console.log(email);
+            const text = formJson.text;
             handleClose();
           },
         }}
@@ -121,11 +128,16 @@ function Addfile() {
             type="text"
             fullWidth
             variant="standard"
+            onChange={(e) => {
+              setTextFieldValue(e.target.value);
+            }}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button type="submit">edit</Button>
+          <Button type="submit" onClick={editName}>
+            edit
+          </Button>
         </DialogActions>
       </Dialog>
       <CssBaseline />
@@ -172,8 +184,8 @@ function Addfile() {
             >
               <input
                 type="file"
-                name="fileinput"
-                id="fileinput"
+                name="fileInput"
+                id="fileInput"
                 hidden
                 ref={inputRef}
                 multiple={true}
@@ -222,7 +234,7 @@ function Addfile() {
                       </ListItemAvatar>
                       <ListItemText primary={file.name} />
                       <ListItemButton sx={{ borderRadius: "50%" }}>
-                        <EditIcon onClick={handleClickOpen} />
+                        <EditIcon onClick={() => handleClickOpen(i)} />
                       </ListItemButton>
                       <ListItemButton sx={{ borderRadius: "50%" }}>
                         <VisibilityIcon />
