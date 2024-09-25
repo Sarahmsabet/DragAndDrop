@@ -2,7 +2,6 @@
 import React, { useState, useRef } from "react";
 import {
   Container,
-  Box,
   CssBaseline,
   Grid,
   Stack,
@@ -15,34 +14,26 @@ import {
   ListItemText,
   Avatar,
   FormControl,
-  FormLabel,
-  FormHelperText,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import { AddBox, PublishOutlined } from "@mui/icons-material";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FolderIcon from "@mui/icons-material/Folder";
-import PublishIcon from "@mui/icons-material/Publish";
-
+import { Visibility, Edit, Delete, Folder } from "@mui/icons-material";
 function Addfile() {
+  // states
   const [open, setOpen] = useState(false);
   const [dragFile, setDragFile] = useState(false);
   const inputRef = useRef(null);
   const [file, setFile] = useState([]);
   const [index, setIndex] = useState(null);
   const [textFieldValue, setTextFieldValue] = useState("");
+  // functions
+  // Add File
   const handelChange = (e) => {
     e.preventDefault();
-    console.log("file add");
     if (e.target.files) {
-      console.log(`file:${e.target.files}`);
       for (let i = 0; i < e.target.files.length; i++) {
         setFile((prevState) => [...prevState, e.target.files[i]]);
       }
@@ -74,16 +65,26 @@ function Addfile() {
     e.stopPropagation();
     setDragFile(true);
   };
+  const openFileExplorer = () => {
+    inputRef.current.value = "";
+    inputRef.current.click();
+  };
+  // removing
   const removeFile = (fileName, i) => {
     const newArr = [...file];
     newArr.splice(i, 1);
     setFile([]);
     setFile(newArr);
   };
-  const openFileExplorer = () => {
-    inputRef.current.value = "";
-    inputRef.current.click();
+  // editing function
+  const editName = () => {
+    let getFile = [...file];
+    let getFileIndex = { ...file[index] };
+    getFileIndex.name = textFieldValue;
+    getFile.splice(index, 1, getFileIndex);
+    setFile(getFile);
   };
+
   const handleClickOpen = (i) => {
     setOpen(true);
     setIndex(i);
@@ -92,16 +93,10 @@ function Addfile() {
   const handleClose = () => {
     setOpen(false);
   };
-  const editName = () => {
-    let getFile = [...file];
-    let getFileIndex = { ...file[index] };
-    getFileIndex.name = textFieldValue;
-    getFile.splice(index, 1, getFileIndex);
-    setFile(getFile);
-  };
   const preview = () => {};
   return (
     <>
+      {/* dialog box for editing file name */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -140,6 +135,7 @@ function Addfile() {
           </Button>
         </DialogActions>
       </Dialog>
+      {/* main container */}
       <CssBaseline />
       <Container
         maxWidth="xl"
@@ -161,6 +157,7 @@ function Addfile() {
             width: "50vw",
           }}
         >
+          {/* add file container */}
           <Stack sx={{ width: "45%", height: "100%" }} m={1}>
             <FormControl
               sx={{
@@ -192,7 +189,7 @@ function Addfile() {
                 onChange={handelChange}
                 accept=".xlsx,.xls,image/*,.doc,.docs,.ppt,.pptx,.txt,.pdf"
               />
-              <Typography variant="p" color="initial">
+              <Typography variant="p" color="initial" m={0.5}>
                 Drop your files here or{" "}
                 <Typography
                   sx={{ fontWeight: "bold", cursor: "pointer" }}
@@ -206,8 +203,9 @@ function Addfile() {
               </Typography>
             </FormControl>
           </Stack>
-          <Stack sx={{ width: "45%", height: "100%" }} m={1}>
-            <List>
+          {/* files list */}
+          <Stack sx={{ width: "45%", height: "90%" }} m={1}>
+            <List sx={{ overflow: "auto" }}>
               {file.length === 0 ? (
                 <Typography
                   sx={{
@@ -229,18 +227,18 @@ function Addfile() {
                     <ListItem divider={true} key={i}>
                       <ListItemAvatar>
                         <Avatar>
-                          <FolderIcon />
+                          <Folder />
                         </Avatar>
                       </ListItemAvatar>
                       <ListItemText primary={file.name} />
                       <ListItemButton sx={{ borderRadius: "50%" }}>
-                        <EditIcon onClick={() => handleClickOpen(i)} />
+                        <Edit onClick={() => handleClickOpen(i)} />
+                      </ListItemButton>
+                      <ListItemButton disabled sx={{ borderRadius: "50%" }}>
+                        <Visibility />
                       </ListItemButton>
                       <ListItemButton sx={{ borderRadius: "50%" }}>
-                        <VisibilityIcon />
-                      </ListItemButton>
-                      <ListItemButton sx={{ borderRadius: "50%" }}>
-                        <DeleteIcon
+                        <Delete
                           onClick={() => {
                             removeFile(file.name, i);
                           }}
