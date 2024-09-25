@@ -26,45 +26,42 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
 import PublishIcon from "@mui/icons-material/Publish";
+
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 function Addfile() {
+  const [open, setOpen] = useState(false);
   const [dragFile, setDragFile] = useState(false);
   const inputRef = useRef(null);
   const [file, setFile] = useState([]);
-  const [situation, setSituation] = useState("No file is add yet");
   const handelChange = (e) => {
     e.preventDefault();
     console.log("file add");
-    if (e.target.files && e.dataTransfer.files[0]) {
+    if (e.target.files) {
       console.log(`file:${e.target.files}`);
       for (let i = 0; i < e.target.files.length; i++) {
         setFile((prevState) => [...prevState, e.target.files[i]]);
       }
-    }
-    setSituation("Files list")
-
-  };
-  const handleSubmitFile = (e) => {
-    if (!file.length === 0) {
-      setSituation("Files list");
     }
   };
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragFile(false);
-    if (e.dataTransfer.file && e.dataTransfer.file[0]) {
-      for (let i = 0; i < e.dataTransfer.file.length; i++) {
-        setFile((prevState) => [...prevState, e.target.files[i]]);
-        setSituation("Files list")
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      for (let i = 0; i < e.dataTransfer.files.length; i++) {
+        setFile((prevState) => [...prevState, e.dataTransfer.files[i]]);
       }
     }
   };
+
   const dragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragFile(false);
-    setSituation("Files list")
-
   };
   const dragOver = (e) => {
     e.preventDefault();
@@ -75,8 +72,6 @@ function Addfile() {
     e.preventDefault();
     e.stopPropagation();
     setDragFile(true);
-    setSituation("Files list")
-
   };
   const removeFile = (fileName, i) => {
     const newArr = [...file];
@@ -87,12 +82,52 @@ function Addfile() {
   const openFileExplorer = () => {
     inputRef.current.value = "";
     inputRef.current.click();
-    setSituation("Files list")
-
+  };
+  const handleClickOpen = () => {
+    setOpen(true);
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const editName = () => {};
+  const preview = () => {};
   return (
     <>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            const email = formJson.email;
+            console.log(email);
+            handleClose();
+          },
+        }}
+      >
+        <DialogContent>
+          <DialogContentText>enter your new name</DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="text"
+            name="text"
+            label="text"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button type="submit">edit</Button>
+        </DialogActions>
+      </Dialog>
       <CssBaseline />
       <Container
         maxWidth="xl"
@@ -115,7 +150,7 @@ function Addfile() {
           }}
         >
           <Stack sx={{ width: "45%", height: "100%" }} m={1}>
-            <Stack
+            <FormControl
               sx={{
                 border: 1,
                 borderRadius: 5,
@@ -127,84 +162,82 @@ function Addfile() {
                 alignItems: "center",
               }}
               m={0.5}
+              onDragEnter={dragEnter}
+              onSubmit={(e) => {
+                e.preventDefault();
+              }}
+              onDrop={handleDrop}
+              onDragLeave={dragLeave}
+              onDragOver={dragOver}
             >
-              <FormControl
-                onDragEnter={dragEnter}
-                onSubmit={(e) => {
-                  e.preventDefault();
-                }}
-                onDrop={handleDrop}
-                onDragLeave={dragLeave}
-                onDragOver={dragOver}
-              >
-                <input
-                  type="file"
-                  name="fileinput"
-                  id="fileinput"
-                  hidden
-                  ref={inputRef}
-                  multiple={true}
-                  onChange={handelChange}
-                  accept=".xlsx,.xls,image/*,.doc,.docs,.ppt,.pptx,.txt,.pdf"
-                />
-                <Typography variant="p" color="initial">
-                  Drop your files here or{" "}
-                  <Typography
-                    sx={{ fontWeight: "bold", cursor: "pointer" }}
-                    variant="span"
-                    color="initial"
-                    onClick={openFileExplorer}
-                  >
-                    select
-                  </Typography>{" "}
-                  your file
-                </Typography>
-              </FormControl>
-            </Stack>
+              <input
+                type="file"
+                name="fileinput"
+                id="fileinput"
+                hidden
+                ref={inputRef}
+                multiple={true}
+                onChange={handelChange}
+                accept=".xlsx,.xls,image/*,.doc,.docs,.ppt,.pptx,.txt,.pdf"
+              />
+              <Typography variant="p" color="initial">
+                Drop your files here or{" "}
+                <Typography
+                  sx={{ fontWeight: "bold", cursor: "pointer" }}
+                  variant="span"
+                  color="initial"
+                  onClick={openFileExplorer}
+                >
+                  select
+                </Typography>{" "}
+                your file
+              </Typography>
+            </FormControl>
           </Stack>
           <Stack sx={{ width: "45%", height: "100%" }} m={1}>
-            <Typography
-              sx={{
-                mt: 4,
-                mb: 2,
-                display: "flex",
-                justifyContent: "center",
-                alignContent: "center",
-                alignItems: "center",
-              }}
-              variant="h6"
-              component="div"
-            >
-              {situation}
-            </Typography>
             <List>
-              {file.map((file, i) => {
-                return (
-                  <ListItem divider={true} key={i}>
-                    <ListItemAvatar>
-                      <Avatar>
-                        <FolderIcon />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={file.name}
-                    />
-                    <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
-                      <EditIcon />
-                    </ListItemButton>
-                    <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
-                      <VisibilityIcon />
-                    </ListItemButton>
-                    <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
-                      <DeleteIcon
-                        onClick={() => {
-                          removeFile(file.name, i);
-                        }}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              })}
+              {file.length === 0 ? (
+                <Typography
+                  sx={{
+                    mt: 4,
+                    mb: 2,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignContent: "center",
+                    alignItems: "center",
+                  }}
+                  variant="h6"
+                  component="div"
+                >
+                  No file add
+                </Typography>
+              ) : (
+                file.map((file, i) => {
+                  return (
+                    <ListItem divider={true} key={i}>
+                      <ListItemAvatar>
+                        <Avatar>
+                          <FolderIcon />
+                        </Avatar>
+                      </ListItemAvatar>
+                      <ListItemText primary={file.name} />
+                      <ListItemButton sx={{ borderRadius: "50%" }}>
+                        <EditIcon onClick={handleClickOpen} />
+                      </ListItemButton>
+                      <ListItemButton sx={{ borderRadius: "50%" }}>
+                        <VisibilityIcon />
+                      </ListItemButton>
+                      <ListItemButton sx={{ borderRadius: "50%" }}>
+                        <DeleteIcon
+                          onClick={() => {
+                            removeFile(file.name, i);
+                          }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })
+              )}
             </List>
           </Stack>
         </Stack>
@@ -214,11 +247,3 @@ function Addfile() {
 }
 
 export default Addfile;
-
-function generate(element) {
-  return [0, 1, 2].map((value) =>
-    React.cloneElement(element, {
-      key: value,
-    })
-  );
-}
