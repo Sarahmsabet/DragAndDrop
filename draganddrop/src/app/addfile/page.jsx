@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { purple } from "@mui/material/colors";
 import {
   Container,
   Box,
@@ -28,8 +27,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FolderIcon from "@mui/icons-material/Folder";
 import PublishIcon from "@mui/icons-material/Publish";
 function Addfile() {
-  // const [dense, setDense] = useState(false);
-  // const [secondary, setSecondary] = useState(false);
   const [dragFile, setDragFile] = useState(false);
   const inputRef = useRef(null);
   const [file, setFile] = useState([]);
@@ -37,12 +34,14 @@ function Addfile() {
   const handelChange = (e) => {
     e.preventDefault();
     console.log("file add");
-    if (e.target.file) {
-      console.log(`file:${e.target.file}`);
-      for (let i = 0; i < e.target.file.length; i++) {
-        setFile((prevState) => [...prevState, e.target.file[i]]);
+    if (e.target.files && e.dataTransfer.files[0]) {
+      console.log(`file:${e.target.files}`);
+      for (let i = 0; i < e.target.files.length; i++) {
+        setFile((prevState) => [...prevState, e.target.files[i]]);
       }
     }
+    setSituation("Files list")
+
   };
   const handleSubmitFile = (e) => {
     if (!file.length === 0) {
@@ -55,7 +54,8 @@ function Addfile() {
     setDragFile(false);
     if (e.dataTransfer.file && e.dataTransfer.file[0]) {
       for (let i = 0; i < e.dataTransfer.file.length; i++) {
-        setFile((prevState) => [...prevState, e.target.file[i]]);
+        setFile((prevState) => [...prevState, e.target.files[i]]);
+        setSituation("Files list")
       }
     }
   };
@@ -63,6 +63,8 @@ function Addfile() {
     e.preventDefault();
     e.stopPropagation();
     setDragFile(false);
+    setSituation("Files list")
+
   };
   const dragOver = (e) => {
     e.preventDefault();
@@ -73,6 +75,8 @@ function Addfile() {
     e.preventDefault();
     e.stopPropagation();
     setDragFile(true);
+    setSituation("Files list")
+
   };
   const removeFile = (fileName, i) => {
     const newArr = [...file];
@@ -83,6 +87,8 @@ function Addfile() {
   const openFileExplorer = () => {
     inputRef.current.value = "";
     inputRef.current.click();
+    setSituation("Files list")
+
   };
 
   return (
@@ -153,13 +159,6 @@ function Addfile() {
                   </Typography>{" "}
                   your file
                 </Typography>
-                <Button
-                  variant="text"
-                  color="primary"
-                  onClick={handleSubmitFile}
-                >
-                  <PublishIcon />
-                </Button>
               </FormControl>
             </Stack>
           </Stack>
@@ -179,32 +178,32 @@ function Addfile() {
               {situation}
             </Typography>
             <List>
-              {/* dense={dense} */}
               {file.map((file, i) => {
-                <ListItem divider={true} key={i}>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <FolderIcon />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={file.name}
-                    // secondary={secondary ? "Secondary text" : null}
-                  />
-                  <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
-                    <EditIcon />
-                  </ListItemButton>
-                  <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
-                    <VisibilityIcon />
-                  </ListItemButton>
-                  <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
-                    <DeleteIcon
-                      onClick={() => {
-                        removeFile(file.name, i);
-                      }}
+                return (
+                  <ListItem divider={true} key={i}>
+                    <ListItemAvatar>
+                      <Avatar>
+                        <FolderIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={file.name}
                     />
-                  </ListItemButton>
-                </ListItem>;
+                    <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
+                      <EditIcon />
+                    </ListItemButton>
+                    <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
+                      <VisibilityIcon />
+                    </ListItemButton>
+                    <ListItemButton sx={{ ":hover": { borderRadius: "50%" } }}>
+                      <DeleteIcon
+                        onClick={() => {
+                          removeFile(file.name, i);
+                        }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
               })}
             </List>
           </Stack>
